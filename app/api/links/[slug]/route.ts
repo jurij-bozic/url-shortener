@@ -5,19 +5,19 @@ import { ApiErrorResponse } from '@/types';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getSession();
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 401 }
       );
     }
 
-    const { slug } = params;
+    const { slug } = await params;
 
     const link = await prisma.link.findUnique({
       where: { slug },
@@ -30,8 +30,12 @@ export async function DELETE(
       );
     }
 
+    if (!session) {
+      throw new Error('Session is null');
+    }
+
     // Verify ownership
-    if (link.userId !== session.user.id) {
+    if (link.userId !== (session.user as any).id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 403 }
@@ -55,19 +59,19 @@ export async function DELETE(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getSession();
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 401 }
       );
     }
 
-    const { slug } = params;
+    const { slug } = await params;
 
     const link = await prisma.link.findUnique({
       where: { slug },
@@ -87,8 +91,12 @@ export async function GET(
       );
     }
 
+    if (!session) {
+      throw new Error('Session is null');
+    }
+
     // Verify ownership
-    if (link.userId !== session.user.id) {
+    if (link.userId !== (session.user as any).id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 403 }

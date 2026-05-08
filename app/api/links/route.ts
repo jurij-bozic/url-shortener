@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 401 }
@@ -39,12 +39,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!session) {
+      throw new Error('Session is null');
+    }
+
     // Create the link
     const link = await prisma.link.create({
       data: {
         slug,
         originalUrl: parsed.originalUrl,
-        userId: session.user.id,
+        userId: (session.user as any).id,
       },
     });
 
@@ -52,7 +56,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors[0].message } as ApiErrorResponse,
+        { error: 'Validation error', details: error.issues[0].message } as ApiErrorResponse,
         { status: 400 }
       );
     }
@@ -69,16 +73,20 @@ export async function GET() {
   try {
     const session = await getSession();
 
-    if (!session?.user?.id) {
+    if (!(session?.user as any)?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' } as ApiErrorResponse,
         { status: 401 }
       );
     }
 
+    if (!session) {
+      throw new Error('Session is null');
+    }
+
     const links = await prisma.link.findMany({
       where: {
-        userId: session.user.id,
+        userId: (session.user as any).id,
       },
       include: {
         _count: {

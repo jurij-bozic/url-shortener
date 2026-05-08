@@ -5,9 +5,9 @@ import { parseUserAgent } from '@/lib/parseUserAgent';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     const link = await prisma.link.findUnique({
@@ -26,7 +26,7 @@ export async function GET(
     const parsedUA = parseUserAgent(userAgent);
 
     // Try to get country from Vercel geo header (if deployed on Vercel)
-    const country = req.geo?.country || null;
+    const country = req.headers.get('x-vercel-ip-country') || null;
 
     // Log the click event
     await prisma.clickEvent.create({
