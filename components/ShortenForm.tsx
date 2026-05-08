@@ -82,7 +82,7 @@ export function ShortenForm() {
             <FormField
               control={form.control}
               name="originalUrl"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Original URL</FormLabel>
                   <FormControl>
@@ -100,7 +100,7 @@ export function ShortenForm() {
             <FormField
               control={form.control}
               name="customSlug"
-              render={({ field }) => (
+              render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Custom Slug (optional)</FormLabel>
                   <FormControl>
