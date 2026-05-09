@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,11 @@ interface LinkCardProps {
 export function LinkCard({ slug, originalUrl, createdAt, clickCount, onDelete }: LinkCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [shortenedUrl, setShortenedUrl] = useState('');
 
-  const shortenedUrl = `${window.location.origin}/${slug}`;
+  useEffect(() => {
+    setShortenedUrl(`${window.location.origin}/${slug}`);
+  }, [slug]);
 
   const handleDelete = async () => {
     setIsDeleting(true);

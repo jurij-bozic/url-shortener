@@ -9,25 +9,25 @@ export async function GET(
 ) {
   const { slug } = await params;
 
+  const link = await prisma.link.findUnique({
+    where: { slug },
+  });
+
+  if (!link) {
+    notFound();
+  }
+
+  // Extract request metadata
+  const userAgent = req.headers.get('user-agent') || '';
+  const referrer = req.headers.get('referer');
+  
+  // Parse user agent
+  const parsedUA = parseUserAgent(userAgent);
+
+  // Try to get country from Vercel geo header (if deployed on Vercel)
+  const country = req.headers.get('x-vercel-ip-country') || null;
+
   try {
-    const link = await prisma.link.findUnique({
-      where: { slug },
-    });
-
-    if (!link) {
-      notFound();
-    }
-
-    // Extract request metadata
-    const userAgent = req.headers.get('user-agent') || '';
-    const referrer = req.headers.get('referer');
-    
-    // Parse user agent
-    const parsedUA = parseUserAgent(userAgent);
-
-    // Try to get country from Vercel geo header (if deployed on Vercel)
-    const country = req.headers.get('x-vercel-ip-country') || null;
-
     // Log the click event
     await prisma.clickEvent.create({
       data: {
@@ -38,11 +38,11 @@ export async function GET(
         browser: parsedUA.browser,
       },
     });
-
-    // Redirect to the original URL
-    redirect(link.originalUrl);
   } catch (error) {
-    console.error('Error processing redirect:', error);
-    notFound();
+    console.error('Error logging click event:', error);
+    // Don't fail if analytics logging fails
   }
+
+  // Redirect to the original URL
+  redirect(link.originalUrl);
 }
