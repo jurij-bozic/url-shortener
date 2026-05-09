@@ -81,10 +81,8 @@ export async function GET(
     const link = await prisma.link.findUnique({
       where: { slug },
       include: {
-        clicks: {
-          orderBy: {
-            createdAt: 'desc',
-          },
+        _count: {
+          select: { clicks: true },
         },
       },
     });
@@ -108,7 +106,13 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(link);
+    return NextResponse.json({
+      id: link.id,
+      slug: link.slug,
+      originalUrl: link.originalUrl,
+      createdAt: link.createdAt,
+      clickCount: link._count.clicks,
+    });
   } catch (error) {
     console.error('Error fetching link:', error);
     return NextResponse.json(
