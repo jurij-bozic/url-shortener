@@ -27,7 +27,11 @@ interface ShortenedLink {
   createdAt: string;
 }
 
-export function ShortenForm() {
+interface ShortenFormProps {
+  onSuccess?: () => void;
+}
+
+export function ShortenForm({ onSuccess }: ShortenFormProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ShortenedLink | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +67,10 @@ export function ShortenForm() {
       const data = await response.json();
       setResult(data);
       form.reset();
+      // Notify parent component
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

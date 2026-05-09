@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { generateSlug, isValidSlug, isValidUrl } from '@/lib/slugify';
@@ -52,6 +53,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Revalidate the dashboard and home page to show the new link
+    revalidatePath('/dashboard');
+    revalidatePath('/');
+
     return NextResponse.json(link, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -99,11 +104,28 @@ export async function GET() {
     });
 
     const linksWithClickCount = links.map((link) => ({
-      ...link,
+      id: link.id,
+      slug: link.slug,
+      originalUrl: link.originalUrl,
+      createdAt: link.createdAt.toISOString(),
       clickCount: link._count.clicks,
     }));
 
-    return NextResponse.json(linksWithClickCount);
+    const totalLinks = linksWithClickCount.length;
+    const totalClicks = linksWithClickCount.reduce((sum, link) => sum + link.clickCount, 0);
+
+    const response = NextResponse.json({
+      links: linksWithClickCount,
+      totalLinks,
+      totalClicks,
+    });
+    
+    // Disable caching for this endpoint
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    return response;
   } catch (error) {
     console.error('Error fetching links:', error);
     return NextResponse.json(

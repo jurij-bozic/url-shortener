@@ -1,61 +1,118 @@
-import { getSession } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { LinkCard } from '@/components/LinkCard';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Link as LinkIcon, Zap, BarChart3 } from 'lucide-react';
-import SignOutButton from '@/components/SignOutButton'; // This will work once file is created
+import { Link as LinkIcon, Zap, BarChart3, RefreshCw } from 'lucide-react';
+import SignOutButton from '@/components/SignOutButton';
 
-export const metadata = {
-  title: 'Dashboard - URL Shortener',
-  description: 'Manage your shortened links and view analytics',
-};
-
-async function getDashboardStats(userId: string) {
-  try {
-    const links = await prisma.link.findMany({
-      where: { userId },
-      include: {
-        _count: {
-          select: { clicks: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    const totalLinks = links.length;
-    const totalClicks = links.reduce((sum, link) => sum + link._count.clicks, 0);
-
-    return {
-      links: links.map((link) => ({
-        id: link.id,
-        slug: link.slug,
-        originalUrl: link.originalUrl,
-        createdAt: link.createdAt.toISOString(),
-        clickCount: link._count.clicks,
-      })),
-      totalLinks,
-      totalClicks,
-    };
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    return {
-      links: [],
-      totalLinks: 0,
-      totalClicks: 0,
-    };
-  }
+interface Link {
+  id: string;
+  slug: string;
+  originalUrl: string;
+  createdAt: string;
+  clickCount: number;
 }
 
-export default async function Dashboard() {
-  const session = await getSession();
+interface DashboardData {
+  links: Link[];
+  totalLinks: number;
+  totalClicks: number;
+}
 
-  if (!session?.user) {
-    redirect('/');
+// Disable static page generation and caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default function Dashboard() {
+  console.log('=== Dashboard component rendering ===');
+  const router = useRouter();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<{ name?: string; email?: string } | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  console.log('=== State initialized ===');
+
+  const fetchDashboardData = async () => {
+    console.log('Fetching dashboard data...', new Date().toISOString());
+    try {
+      const response = await fetch(`/api/links?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+      });
+      if (response.status === 401) {
+        router.push('/');
+        return;
+      }
+      const newData = await response.json();
+      console.log('Dashboard data received:', newData);
+      setData(newData);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching dashboard:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSession = async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      const session = await response.json();
+      if (session?.user) {
+        setUserInfo(session.user);
+      } else {
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Error fetching session:', error);
+    }
+  };
+
+  useEffect(() => {
+    console.log('useEffect mounted');
+    getSession();
+    fetchDashboardData();
+
+    // Poll for updates every 1 second
+    const interval = setInterval(() => {
+      console.log('Interval tick');
+      fetchDashboardData();
+    }, 1000);
+    
+    return () => {
+      console.log('useEffect cleanup');
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
+
+  const handleDelete = async (slug: string) => {
+    await fetch(`/api/links/${slug}`, { method: 'DELETE' });
+    await fetchDashboardData();
+  };
+
+  const handleRefresh = () => {
+    fetchDashboardData();
+  };
+
+  if (isLoading || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin mb-4">
+            <RefreshCw className="w-8 h-8 text-blue-600 mx-auto" />
+          </div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
-  const { links, totalLinks, totalClicks } = await getDashboardStats((session.user as any).id);
+  const { links, totalLinks, totalClicks } = data;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,8 +129,8 @@ export default async function Dashboard() {
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm text-gray-600">{session.user.name}</p>
-              <p className="text-xs text-gray-500">{session.user.email}</p>
+              <p className="text-sm text-gray-600">{userInfo?.name}</p>
+              <p className="text-xs text-gray-500">{userInfo?.email}</p>
             </div>
             <SignOutButton />
           </div>
@@ -126,14 +183,28 @@ export default async function Dashboard() {
         {/* Links Section */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Links</h2>
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-            >
-              <LinkIcon className="w-4 h-4" />
-              Create New Link
-            </a>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Your Links</h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRefresh}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </button>
+              <a
+                href="/"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <LinkIcon className="w-4 h-4" />
+                Create New Link
+              </a>
+            </div>
           </div>
 
           {links.length === 0 ? (
@@ -157,12 +228,9 @@ export default async function Dashboard() {
                   key={link.id}
                   slug={link.slug}
                   originalUrl={link.originalUrl}
-                  createdAt={link.createdAt as string}
+                  createdAt={link.createdAt}
                   clickCount={link.clickCount}
-                  onDelete={async (slug: string) => {
-                    'use server';
-                    await fetch(`/api/links/${slug}`, { method: 'DELETE' });
-                  }}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ApiErrorResponse } from '@/types';
@@ -46,6 +47,10 @@ export async function DELETE(
     await prisma.link.delete({
       where: { slug },
     });
+
+    // Revalidate the dashboard and home page
+    revalidatePath('/dashboard');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true });
   } catch (error) {

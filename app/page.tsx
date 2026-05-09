@@ -1,40 +1,76 @@
-import { getSession } from '@/lib/auth';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ShortenForm } from '@/components/ShortenForm';
 import { LinkCard } from '@/components/LinkCard';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link as LinkIcon } from 'lucide-react';
 import { SignInButton } from '@/components/SignInButton';
-import { prisma } from '@/lib/prisma';
 
-async function getRecentLinks(userId: string) {
-  try {
-    const links = await prisma.link.findMany({
-      where: { userId },
-      include: {
-        _count: {
-          select: { clicks: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    });
-
-    return links.map((link) => ({
-      id: link.id,
-      slug: link.slug,
-      originalUrl: link.originalUrl,
-      createdAt: link.createdAt,
-      clickCount: link._count.clicks,
-    }));
-  } catch (error) {
-    console.error('Error fetching links:', error);
-    return [];
-  }
+interface Link {
+  id: string;
+  slug: string;
+  originalUrl: string;
+  createdAt: string;
+  clickCount: number;
 }
 
-export default async function Home() {
-  const session = await getSession();
+export default function Home() {
+  const router = useRouter();
+  const [session, setSession] = useState<any>(null);
+  const [recentLinks, setRecentLinks] = useState<Link[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSession = async () => {
+    const res = await fetch('/api/auth/session');
+    const data = await res.json();
+    setSession(data);
+  };
+
+  const fetchRecentLinks = async () => {
+    try {
+      const res = await fetch('/api/links?t=' + Date.now(), {
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecentLinks(data.links.slice(0, 5));
+      }
+    } catch (error) {
+      console.error('Error fetching links:', error);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await fetchSession();
+      setIsLoading(false);
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchRecentLinks();
+      // Poll for updates every 2 seconds
+      const interval = setInterval(fetchRecentLinks, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [session]);
+
+  const handleLinkCreated = () => {
+    fetchRecentLinks();
+  };
+
+  const handleDelete = async (slug: string) => {
+    await fetch(`/api/links/${slug}`, { method: 'DELETE' });
+    fetchRecentLinks();
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
+  }
 
   if (!session?.user) {
     return (
@@ -79,8 +115,6 @@ export default async function Home() {
     );
   }
 
-  const recentLinks: any[] = await getRecentLinks((session.user as any).id);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -92,6 +126,7 @@ export default async function Home() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">Welcome, {session.user.name}</span>
+            <a href="/dashboard" className="text-sm font-medium text-blue-600 hover:underline">Dashboard</a>
           </div>
         </div>
       </header>
@@ -101,7 +136,7 @@ export default async function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-1">
-            <ShortenForm />
+            <ShortenForm onSuccess={handleLinkCreated} />
           </div>
 
           {/* Links List Section */}
@@ -121,28 +156,34 @@ export default async function Home() {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {recentLinks.slice(0, 5).map((link: any) => (
-                    <LinkCard
+                  {recentLinks.map((link, index) => (
+                    <div
                       key={link.id}
-                      slug={link.slug}
-                      originalUrl={link.originalUrl}
-                      createdAt={link.createdAt}
-                      clickCount={link.clickCount || 0}
-                      onDelete={async (slug: string) => {
-                        'use server';
-                        await fetch(`/api/links/${slug}`, { method: 'DELETE' });
-                      }}
-                    />
+                      style={{
+                        animation: `materialize 0.5s ease-out forwards`,
+                        WebkitAnimation: `materialize 0.5s ease-out forwards`,
+                        animationDelay: `${index * 0.08}s`,
+                        WebkitAnimationDelay: `${index * 0.08}s`,
+                        animationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        WebkitAnimationTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      } as React.CSSProperties}
+                    >
+                      <LinkCard
+                        slug={link.slug}
+                        originalUrl={link.originalUrl}
+                        createdAt={link.createdAt}
+                        clickCount={link.clickCount || 0}
+                        onDelete={handleDelete}
+                      />
+                    </div>
                   ))}
 
-                  {recentLinks.length > 5 && (
-                    <a
-                      href="/dashboard"
-                      className="text-blue-600 hover:underline font-medium text-sm"
-                    >
-                      View all {recentLinks.length} links →
-                    </a>
-                  )}
+                  <a
+                    href="/dashboard"
+                    className="block text-center text-blue-600 hover:underline font-medium text-sm mt-4"
+                  >
+                    View all links on Dashboard →
+                  </a>
                 </div>
               )}
             </div>
