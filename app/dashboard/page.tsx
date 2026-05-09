@@ -6,6 +6,9 @@ import { LinkCard } from '@/components/LinkCard';
 import { Card } from '@/components/ui/card';
 import { Link as LinkIcon, Zap, BarChart3, RefreshCw } from 'lucide-react';
 import SignOutButton from '@/components/SignOutButton';
+import { ClicksByCountry } from '@/components/charts/ClicksByCountry';
+import { ClicksByDevice } from '@/components/charts/ClicksByDevice';
+import { ClicksOverTime } from '@/components/charts/ClicksOverTime';
 
 interface Link {
   id: string;
@@ -21,14 +24,21 @@ interface DashboardData {
   totalClicks: number;
 }
 
-// Disable static page generation and caching
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+interface AnalyticsData {
+  byCountry: Array<{ country: string; clicks: number }>;
+  byDevice: Array<{ device: string; clicks: number }>;
+  overTime: Array<{ date: string; clicks: number }>;
+}
 
 export default function Dashboard() {
   console.log('=== Dashboard component rendering ===');
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData>({
+    byCountry: [],
+    byDevice: [],
+    overTime: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<{ name?: string; email?: string } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -37,19 +47,50 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     console.log('Fetching dashboard data...', new Date().toISOString());
     try {
-      const response = await fetch(`/api/links?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        },
-      });
-      if (response.status === 401) {
+      const [linksRes, countryRes, deviceRes, timeRes] = await Promise.all([
+        fetch(`/api/links?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
+        }),
+        fetch(`/api/analytics/by-country?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
+        }),
+        fetch(`/api/analytics/by-device?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
+        }),
+        fetch(`/api/analytics/over-time?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
+        }),
+      ]);
+
+      if (linksRes.status === 401) {
         router.push('/');
         return;
       }
-      const newData = await response.json();
-      console.log('Dashboard data received:', newData);
-      setData(newData);
+
+      const linksData = await linksRes.json();
+      const countryData = countryRes.ok ? await countryRes.json() : [];
+      const deviceData = deviceRes.ok ? await deviceRes.json() : [];
+      const timeData = timeRes.ok ? await timeRes.json() : [];
+
+      console.log('Dashboard data received:', linksData);
+      setData(linksData);
+      setAnalytics({
+        byCountry: countryData,
+        byDevice: deviceData,
+        overTime: timeData,
+      });
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching dashboard:', error);
@@ -128,6 +169,9 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-4">
+            <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
+              ← Home
+            </a>
             <div className="text-right">
               <p className="text-sm text-gray-600">{userInfo?.name}</p>
               <p className="text-xs text-gray-500">{userInfo?.email}</p>
@@ -177,6 +221,24 @@ export default function Dashboard() {
                 <BarChart3 className="w-6 h-6 text-purple-600" />
               </div>
             </div>
+          </Card>
+        </div>
+
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 my-12">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Country</h3>
+            <ClicksByCountry data={analytics.byCountry} />
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Device</h3>
+            <ClicksByDevice data={analytics.byDevice} />
+          </Card>
+
+          <Card className="p-6 lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks Over Time</h3>
+            <ClicksOverTime data={analytics.overTime} />
           </Card>
         </div>
 
