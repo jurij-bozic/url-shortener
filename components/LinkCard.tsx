@@ -34,33 +34,33 @@ export function LinkCard({ slug, originalUrl, createdAt, clickCount, onDelete }:
   };
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="space-y-3">
+    <Card className="p-6 hover:shadow-lg transition-all duration-300 border-slate-200 hover:border-blue-300">
+      <div className="space-y-4">
         {/* Header with slug and click count */}
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <LinkIcon className="w-4 h-4 text-blue-600" />
-              <code className="text-sm font-mono font-semibold text-blue-600">{slug}</code>
+              <code className="text-sm font-mono font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{slug}</code>
             </div>
-            <p className="text-xs text-gray-500">
-              Created {new Date(createdAt).toLocaleDateString()}
+            <p className="text-xs text-slate-500">
+              {new Date(createdAt).toLocaleDateString()} at {new Date(createdAt).toLocaleTimeString()}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-gray-900">{clickCount}</p>
-            <p className="text-xs text-gray-600">clicks</p>
+            <p className="text-2xl font-bold text-slate-900">{clickCount}</p>
+            <p className="text-xs text-slate-600">clicks</p>
           </div>
         </div>
 
         {/* Original URL */}
-        <div className="py-2 border-t border-b">
-          <p className="text-xs text-gray-600 mb-1">Original URL:</p>
+        <div className="py-3 border-t border-b border-slate-200">
+          <p className="text-xs text-slate-600 mb-2 font-semibold uppercase tracking-wide">Original URL</p>
           <a
             href={originalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline break-all"
+            className="text-sm text-blue-600 hover:text-blue-700 hover:underline break-all"
           >
             {originalUrl}
           </a>
@@ -68,15 +68,16 @@ export function LinkCard({ slug, originalUrl, createdAt, clickCount, onDelete }:
 
         {/* Shortened URL with copy button */}
         <div>
-          <p className="text-xs text-gray-600 mb-1">Short URL:</p>
+          <p className="text-xs text-slate-600 mb-2 font-semibold uppercase tracking-wide">Short URL</p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-sm font-mono bg-gray-50 p-2 rounded border truncate">
+            <code className="flex-1 text-sm font-mono bg-slate-100 p-3 rounded-lg border border-slate-200 truncate hover:bg-slate-150 transition-colors">
               {shortenedUrl}
             </code>
             <Button
               size="sm"
               variant="outline"
               onClick={() => navigator.clipboard.writeText(shortenedUrl)}
+              className="hover:bg-blue-50"
             >
               Copy
             </Button>
@@ -86,7 +87,7 @@ export function LinkCard({ slug, originalUrl, createdAt, clickCount, onDelete }:
         {/* Actions */}
         <div className="flex gap-2 pt-2">
           <Link href={`/dashboard/${slug}`} className="flex-1">
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="sm" className="w-full hover:bg-blue-50 hover:border-blue-300">
               <BarChart3 className="w-4 h-4 mr-1" />
               Analytics
             </Button>

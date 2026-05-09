@@ -74,40 +74,56 @@ export default function Home() {
 
   if (!session?.user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="max-w-4xl mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
-          <div className="text-center space-y-6">
-            <div className="inline-flex p-3 bg-blue-100 rounded-full">
-              <LinkIcon className="w-8 h-8 text-blue-600" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500 rounded-full opacity-10 blur-3xl"></div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+          <div className="text-center space-y-8">
+            <div className="inline-flex p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
+              <LinkIcon className="w-8 h-8 text-white" />
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              Shorten Your URLs
-            </h1>
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400 bg-clip-text text-transparent">
+                Shorten Your URLs
+              </h1>
+              <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+                Create short, trackable links and monitor click analytics in real-time with beautiful visualizations.
+              </p>
+            </div>
 
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Create short, trackable links and monitor click analytics in real-time. Perfect for social media, marketing, and more.
-            </p>
-
-            <div className="pt-4">
+            <div className="pt-6">
               <SignInButton />
             </div>
 
-            <div className="pt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-              <Card className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Fast & Simple</h3>
-                <p className="text-sm text-gray-600">Create short links instantly with custom slugs or auto-generated ones.</p>
-              </Card>
+            <div className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              <div className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center mb-3">
+                  <LinkIcon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-white mb-2">Fast & Simple</h3>
+                <p className="text-sm text-blue-100">Create short links instantly with custom slugs or auto-generated ones.</p>
+              </div>
 
-              <Card className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Real-Time Analytics</h3>
-                <p className="text-sm text-gray-600">Track clicks, geography, devices, and referrers with detailed charts.</p>
-              </Card>
+              <div className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-3">
+                  <LinkIcon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-white mb-2">Real-Time Analytics</h3>
+                <p className="text-sm text-blue-100">Track clicks, geography, devices, and referrers with detailed charts.</p>
+              </div>
 
-              <Card className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Secure & Reliable</h3>
-                <p className="text-sm text-gray-600">OAuth authentication with PostgreSQL-backed storage on Railway.</p>
-              </Card>
+              <div className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-3">
+                  <LinkIcon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-white mb-2">Secure & Reliable</h3>
+                <p className="text-sm text-blue-100">OAuth authentication with PostgreSQL-backed storage on Railway.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -116,17 +132,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-100 to-slate-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <LinkIcon className="w-6 h-6 text-blue-600" />
-            <h1 className="text-xl font-bold text-gray-900">URL Shortener</h1>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+              <LinkIcon className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Link</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {session.user.name}</span>
-            <a href="/dashboard" className="text-sm font-medium text-blue-600 hover:underline">Dashboard</a>
+          <div className="flex items-center gap-6">
+            <span className="text-sm text-slate-600">Welcome, <span className="font-semibold text-slate-900">{session.user.name}</span></span>
+            <a href="/dashboard" className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium hover:shadow-lg hover:shadow-blue-500/50 transition-all">Dashboard</a>
           </div>
         </div>
       </header>
@@ -142,18 +160,21 @@ export default function Home() {
           {/* Links List Section */}
           <div className="lg:col-span-2">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Recent Links ({recentLinks.length})
-              </h2>
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 mb-2">
+                  Recent Links
+                </h2>
+                <p className="text-sm text-slate-600">Your last {recentLinks.length} shortened links</p>
+              </div>
 
               {recentLinks.length === 0 ? (
-                <Card className="p-8 text-center">
-                  <LinkIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 font-medium">No links yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
+                <div className="p-12 rounded-2xl bg-white border-2 border-dashed border-slate-200 text-center hover:border-slate-300 transition-colors">
+                  <LinkIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-600 font-medium text-lg">No links yet</p>
+                  <p className="text-sm text-slate-500 mt-2">
                     Create your first short link using the form to get started!
                   </p>
-                </Card>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {recentLinks.map((link, index) => (

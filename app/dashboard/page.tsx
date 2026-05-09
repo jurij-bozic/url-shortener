@@ -156,25 +156,27 @@ export default function Dashboard() {
   const { links, totalLinks, totalClicks } = data;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-100 to-slate-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <LinkIcon className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+              <LinkIcon className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-500">Manage your shortened links</p>
+              <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+              <p className="text-sm text-slate-500">Manage and analyze your links</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <a href="/" className="text-sm font-medium text-blue-600 hover:underline">
+          <div className="flex items-center gap-6">
+            <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
               ← Home
             </a>
             <div className="text-right">
-              <p className="text-sm text-gray-600">{userInfo?.name}</p>
-              <p className="text-xs text-gray-500">{userInfo?.email}</p>
+              <p className="text-sm font-semibold text-slate-900">{userInfo?.name}</p>
+              <p className="text-xs text-slate-500">{userInfo?.email}</p>
             </div>
             <SignOutButton />
           </div>
@@ -185,40 +187,40 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 py-12">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Links</p>
-                <p className="text-3xl font-bold text-gray-900">{totalLinks}</p>
+                <p className="text-xs text-blue-600 mb-1 font-semibold uppercase tracking-wide">Total Links</p>
+                <p className="text-4xl font-bold text-blue-900">{totalLinks}</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <LinkIcon className="w-6 h-6 text-blue-600" />
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl">
+                <LinkIcon className="w-8 h-8 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Clicks</p>
-                <p className="text-3xl font-bold text-gray-900">{totalClicks}</p>
+                <p className="text-xs text-green-600 mb-1 font-semibold uppercase tracking-wide">Total Clicks</p>
+                <p className="text-4xl font-bold text-green-900">{totalClicks}</p>
               </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <Zap className="w-6 h-6 text-green-600" />
+              <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl">
+                <Zap className="w-8 h-8 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-100 border-purple-200 hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Clicks/Link</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-xs text-purple-600 mb-1 font-semibold uppercase tracking-wide">Avg Clicks/Link</p>
+                <p className="text-4xl font-bold text-purple-900">
                   {totalLinks > 0 ? Math.round(totalClicks / totalLinks) : 0}
                 </p>
               </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+              <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl">
+                <BarChart3 className="w-8 h-8 text-white" />
               </div>
             </div>
           </Card>
@@ -226,42 +228,42 @@ export default function Dashboard() {
 
         {/* Analytics Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 my-12">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Country</h3>
+          <Card className="p-6 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks by Country</h3>
             <ClicksByCountry data={analytics.byCountry} />
           </Card>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Device</h3>
+          <Card className="p-6 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks by Device</h3>
             <ClicksByDevice data={analytics.byDevice} />
           </Card>
 
-          <Card className="p-6 lg:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks Over Time</h3>
+          <Card className="p-6 lg:col-span-2 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks Over Time</h3>
             <ClicksOverTime data={analytics.overTime} />
           </Card>
         </div>
 
         {/* Links Section */}
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Your Links</h2>
-              <p className="text-xs text-gray-500 mt-1">
+              <h2 className="text-3xl font-bold text-slate-900 mb-2">Your Links</h2>
+              <p className="text-sm text-slate-600">
                 Last updated: {lastUpdated.toLocaleTimeString()}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={handleRefresh}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-lg font-medium transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Refresh
               </button>
               <a
                 href="/"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg hover:shadow-blue-500/50 text-white rounded-lg font-medium transition-all"
               >
                 <LinkIcon className="w-4 h-4" />
                 Create New Link
@@ -270,10 +272,10 @@ export default function Dashboard() {
           </div>
 
           {links.length === 0 ? (
-            <Card className="p-12 text-center">
-              <LinkIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No links yet</h3>
-              <p className="text-gray-600 mb-6">
+            <Card className="p-16 text-center bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-dashed border-slate-200">
+              <LinkIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">No links yet</h3>
+              <p className="text-slate-600 mb-8">
                 Create your first shortened link to get started with analytics tracking.
               </p>
               <a

@@ -111,21 +111,23 @@ export default function LinkAnalyticsPage() {
   const shortenedUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/{linkData.slug}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-100 to-slate-100 p-8">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-4"
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </button>
           <div className="flex items-center gap-3">
-            <LinkIcon className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+              <LinkIcon className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Link Analytics</h1>
+              <h1 className="text-2xl font-bold text-slate-900">Link Analytics</h1>
               <code className="text-sm text-blue-600 font-mono">{linkData.slug}</code>
             </div>
           </div>
@@ -135,72 +137,72 @@ export default function LinkAnalyticsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-12">
         {/* Link Info Card */}
-        <Card className="p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-8 mb-12 bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <p className="text-xs text-gray-600 mb-1 uppercase font-semibold">Short URL</p>
+              <p className="text-xs text-blue-600 mb-2 uppercase font-semibold tracking-wide">Short URL</p>
               <a
                 href={`/${linkData.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg font-mono text-blue-600 hover:underline break-all"
+                className="text-2xl font-mono font-bold text-blue-600 hover:text-blue-700 hover:underline break-all"
               >
                 {shortenedUrl}
               </a>
             </div>
             <div>
-              <p className="text-xs text-gray-600 mb-1 uppercase font-semibold">Original URL</p>
+              <p className="text-xs text-blue-600 mb-2 uppercase font-semibold tracking-wide">Original URL</p>
               <a
                 href={linkData.originalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-lg text-blue-600 hover:underline break-all"
+                className="text-lg text-blue-600 hover:text-blue-700 hover:underline break-all"
               >
                 {linkData.originalUrl}
               </a>
             </div>
             <div>
-              <p className="text-xs text-gray-600 mb-1 uppercase font-semibold">Total Clicks</p>
-              <p className="text-3xl font-bold text-gray-900">{linkData.clickCount}</p>
+              <p className="text-xs text-blue-600 mb-2 uppercase font-semibold tracking-wide">Total Clicks</p>
+              <p className="text-4xl font-bold text-blue-900">{linkData.clickCount}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-600 mb-1 uppercase font-semibold">Created</p>
-              <p className="text-lg text-gray-900">{new Date(linkData.createdAt).toLocaleDateString()}</p>
+              <p className="text-xs text-blue-600 mb-2 uppercase font-semibold tracking-wide">Created</p>
+              <p className="text-lg font-semibold text-blue-900">{new Date(linkData.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </Card>
 
         {/* Analytics Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Country</h3>
+          <Card className="p-6 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks by Country</h3>
             <ClicksByCountry data={analytics.byCountry} />
           </Card>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks by Device</h3>
+          <Card className="p-6 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks by Device</h3>
             <ClicksByDevice data={analytics.byDevice} />
           </Card>
 
-          <Card className="p-6 lg:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Clicks Over Time</h3>
+          <Card className="p-6 lg:col-span-2 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Clicks Over Time</h3>
             <ClicksOverTime data={analytics.overTime} />
           </Card>
         </div>
 
         {/* Referrers */}
         {analytics.referrers.length > 0 && (
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Referrers</h3>
+          <Card className="p-6 border-slate-200 hover:shadow-lg transition-all">
+            <h3 className="text-lg font-bold text-slate-900 mb-6">Top Referrers</h3>
             <div className="space-y-3">
               {analytics.referrers.slice(0, 10).map((referrer, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
-                  <p className="text-sm text-gray-700 break-all flex-1">
+                <div key={index} className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0 hover:bg-slate-50 px-2 rounded transition-colors">
+                  <p className="text-sm text-slate-700 break-all flex-1 font-medium">
                     {referrer.referrer || '(direct)'}
                   </p>
-                  <div className="flex items-center gap-2 ml-4">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <p className="text-sm font-semibold text-gray-900">{referrer.clicks}</p>
+                  <div className="flex items-center gap-3 ml-4">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <p className="text-sm font-bold text-slate-900">{referrer.clicks}</p>
                   </div>
                 </div>
               ))}
