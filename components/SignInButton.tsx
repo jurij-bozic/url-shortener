@@ -8,9 +8,14 @@ export function SignInButton() {
     <Button
       size="lg"
       onClick={() => signIn('google', { callbackUrl: '/' })}
-      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-2xl hover:shadow-blue-500/50 text-white px-8 font-semibold rounded-lg transition-all"
+      className="relative overflow-hidden transform-gpu bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/40 text-white px-8 font-semibold rounded-lg transition-none"
     >
-      Sign In with Google
+      {/* Opacity is GPU-composited, so it stays smooth in Safari (filter/box-shadow transitions are not) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-white/20 opacity-0 transition-opacity duration-50 ease-linear group-hover/button:opacity-100"
+      />
+      <span className="relative">Sign In with Google</span>
     </Button>
   );
 }
